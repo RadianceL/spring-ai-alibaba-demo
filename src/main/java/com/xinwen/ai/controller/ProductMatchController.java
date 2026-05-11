@@ -1,5 +1,7 @@
 package com.xinwen.ai.controller;
 
+import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
+import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.xinwen.ai.conifg.constant.ChatConfig;
 import com.xinwen.ai.ai.ProductMatchAiChatService;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,7 @@ public class ProductMatchController {
 
     @GetMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter chat(@RequestParam("timeId") String timeId,
-                           @RequestParam("message") String message) {
-
+                           @RequestParam("message") String message) throws GraphRunnerException, GraphStateException {
         SseEmitter emitter = new SseEmitter(ChatConfig.CHAT_SSE_TIMEOUT_MS);
         MediaType textUtf8 = new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8);
 

@@ -1,4 +1,4 @@
-package com.xinwen.ai.ai.tools;
+package com.xinwen.ai.ai.tools.client;
 
 import com.alibaba.fastjson.JSON;
 import com.xinwen.ai.service.ProductService;
