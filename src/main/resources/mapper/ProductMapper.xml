@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xinwen.ai.repository.ProductRepository">
+
+    <resultMap id="BaseResultMap" type="com.xinwen.ai.repository.data.VmsProductPO">
+        <result column="product_id" property="productId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="product_category_id" property="productCategoryId"/>
+        <result column="inner_code" property="innerCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="local_product_name" property="localProductName"/>
+        <result column="product_code" property="productCode"/>
+        <result column="brand_name" property="brandName"/>
+        <result column="brand_disp" property="brandDisp"/>
+        <result column="stock_div" property="stockDiv"/>
+        <result column="package_div" property="packageDiv"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_vendor_id" property="supplierVendorId"/>
+        <result column="supplier_code_mark" property="supplierCodeMark"/>
+        <result column="supplier_name_mark" property="supplierNameMark"/>
+        <result column="sale_price" property="salePrice"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="unit_sale_num" property="unitSaleNum"/>
+        <result column="unit_pack_num" property="unitPackNum"/>
+        <result column="slide_qty" property="slideQty"/>
+        <result column="shelf_at" property="shelfAt"/>
+        <result column="off_shelf_at" property="offShelfAt"/>
+        <result column="currency" property="currency"/>
+        <result column="need_days" property="needDays"/>
+        <result column="feature_map_json" property="featureMapJson"/>
+        <result column="is_enabled" property="isEnabled"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="sort" property="sort"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="creation_date" property="creationDate"/>
+        <result column="last_updated_by" property="lastUpdatedBy"/>
+        <result column="last_update_date" property="lastUpdateDate"/>
+        <result column="deleted_by" property="deletedBy"/>
+        <result column="deleted_date" property="deletedDate"/>
+    </resultMap>
+
+    <select id="findAllProduct" resultMap="BaseResultMap">
+        SELECT * FROM vms_product
+        WHERE product_name LIKE CONCAT('%', #{userInputProductName}, '%')
+        LIMIT 3
+    </select>
+</mapper>

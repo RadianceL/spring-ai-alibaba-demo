@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: spring-ai-alibaba-demo
+  datasource:
+    url: jdbc:mysql://localhost:3306/product_ai_demo?serverTimezone=GMT%2B8&characterEncoding=utf8&useSSL=false
+    username: root
+    password: xinwen
+  ai:
+    dashscope:
+      api-key: sk-b5a531ec8877443d9ef5ca50e110e651
+      chat:
+        options:
+          model: deepseek-v4-pro
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+        collection-name: product_info
+        use-tls: false
+        initialize-schema: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+app:
+  ai:
+    chat-memory:
+      max-messages: 20
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
