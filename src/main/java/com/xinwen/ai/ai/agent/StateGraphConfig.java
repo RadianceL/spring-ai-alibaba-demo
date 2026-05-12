@@ -88,7 +88,7 @@ public class StateGraphConfig {
                 .model(chatModel)
                 .systemPrompt(systemPrompt)
                 .instruction("""
-                                %s
+                                {%s}
                             """.formatted(USER_INPUT))
                 .saver(memorySaver)
                 .outputKey(ASSISTANT_RESULT)
@@ -119,20 +119,20 @@ public class StateGraphConfig {
         // 定义流程：预处理 -> Agent处理 -> 验证
         workflow.addEdge(StateGraph.START, "preprocess");
         workflow.addEdge("preprocess", reactAgent.name());
-        workflow.addEdge(reactAgent.name(), "validate");
-
-        // 条件边：验证通过则结束，否则重新处理
-        workflow.addConditionalEdges(
-                "validate",
-                edge_async(state -> {
-                    Boolean isValid = state.value("is_valid", false);
-                    return isValid ? "end" : reactAgent.name();
-                }),
-                Map.of(
-                        "end", StateGraph.END,
-                        reactAgent.name(), reactAgent.name()
-                )
-        );
+        workflow.addEdge(reactAgent.name(), StateGraph.END);
+//
+//        // 条件边：验证通过则结束，否则重新处理
+//        workflow.addConditionalEdges(
+//                "validate",
+//                edge_async(state -> {
+//                    Boolean isValid = state.value("is_valid", false);
+//                    return isValid ? "end" : reactAgent.name();
+//                }),
+//                Map.of(
+//                        "end", StateGraph.END,
+//                        reactAgent.name(), reactAgent.name()
+//                )
+//        );
 
         return workflow.compile(
                 CompileConfig.builder()

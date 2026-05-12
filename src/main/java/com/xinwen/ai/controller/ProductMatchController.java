@@ -1,10 +1,15 @@
 package com.xinwen.ai.controller;
 
+import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
+import com.alibaba.cloud.ai.graph.streaming.OutputType;
+import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
+import com.xinwen.ai.ai.agent.StateGraphConfig;
 import com.xinwen.ai.conifg.constant.ChatConfig;
 import com.xinwen.ai.ai.service.ProductMatchAiChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +36,38 @@ public class ProductMatchController {
 
         AtomicReference<Disposable> subscriptionRef = new AtomicReference<>();
         Disposable subscription = productMatchAiChatService.streamStateGraph(timeId, message).subscribe(chunk -> {
+            try {
+                if (chunk instanceof StreamingOutput<?> streamingOutput) {
+                    if (OutputType.AGENT_MODEL_STREAMING.equals(streamingOutput.getOutputType()) && streamingOutput.message() != null) {
+                        emitter.send(SseEmitter.event().data(streamingOutput.message().getText(), textUtf8));
+                    }
+                }
+            } catch (IOException e) {
+                Disposable d = subscriptionRef.get();
+                if (d != null) {
+                    d.dispose();
+                }
+                emitter.completeWithError(e);
+            }
+        }, emitter::completeWithError, emitter::complete);
+        subscriptionRef.set(subscription);
+
+        emitter.onCompletion(subscription::dispose);
+        emitter.onTimeout(() -> {
+            subscription.dispose();
+            emitter.complete();
+        });
+        return emitter;
+    }
+
+    @GetMapping(value = "/chat/client", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter chatClient(@RequestParam("timeId") String timeId,
+                           @RequestParam("message") String message) throws GraphRunnerException, GraphStateException {
+        SseEmitter emitter = new SseEmitter(ChatConfig.CHAT_SSE_TIMEOUT_MS);
+        MediaType textUtf8 = new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8);
+
+        AtomicReference<Disposable> subscriptionRef = new AtomicReference<>();
+        Disposable subscription = productMatchAiChatService.stream(timeId, message).subscribe(chunk -> {
             try {
                 emitter.send(SseEmitter.event().data(chunk, textUtf8));
             } catch (IOException e) {
