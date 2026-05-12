@@ -10,6 +10,6 @@ public class PreprocessorNode implements NodeAction {
     public Map<String, Object> apply(OverAllState state) throws Exception {
         String input = state.value("input", "");
         String cleaned = input.trim();
-        return Map.of("cleaned_input", cleaned);
+        return Map.of("input", cleaned);
     }
 }

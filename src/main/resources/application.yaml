@@ -10,7 +10,7 @@ spring:
       api-key: sk-b5a531ec8877443d9ef5ca50e110e651
       chat:
         options:
-          model: deepseek-v4-flash
+          model: qwen3-max
     vectorstore:
       qdrant:
         host: localhost

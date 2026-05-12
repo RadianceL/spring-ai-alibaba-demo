@@ -42,7 +42,7 @@
 
     <select id="findAllProduct" resultMap="BaseResultMap">
         SELECT * FROM vms_product
-        WHERE product_name LIKE CONCAT('%', #{userInputProductName}, '%')
-        LIMIT 3
+
+        LIMIT 10
     </select>
 </mapper>
