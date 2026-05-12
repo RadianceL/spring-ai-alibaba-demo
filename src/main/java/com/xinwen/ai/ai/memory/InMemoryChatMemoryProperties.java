@@ -1,4 +1,4 @@
-package com.xinwen.ai.conifg.memory;
+package com.xinwen.ai.ai.memory;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

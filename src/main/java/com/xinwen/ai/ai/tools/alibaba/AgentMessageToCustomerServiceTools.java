@@ -1,7 +1,6 @@
-package com.xinwen.ai.ai.tools.agent;
+package com.xinwen.ai.ai.tools.alibaba;
 
-import com.alibaba.fastjson.JSON;
-import com.xinwen.ai.ai.tools.agent.data.MessageToCustomerServiceRequest;
+import com.xinwen.ai.ai.agent.data.MessageToCustomerServiceRequest;
 import com.xinwen.ai.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import java.util.function.BiFunction;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AgentMessageToCustomerServiceTools implements BiFunction<MessageToCustomerServiceRequest, ToolContext, String> {
-
-    private final ProductService productService;
 
     @Override
     public String apply(MessageToCustomerServiceRequest message, ToolContext toolContext) {

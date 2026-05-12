@@ -1,12 +1,11 @@
-package com.xinwen.ai.ai.tools.agent;
+package com.xinwen.ai.ai.tools.alibaba;
 
 import com.alibaba.fastjson.JSON;
-import com.xinwen.ai.ai.tools.agent.data.MessageToCustomerServiceRequest;
+import com.xinwen.ai.ai.agent.data.MessageToCustomerServiceRequest;
 import com.xinwen.ai.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

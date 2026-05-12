@@ -1,4 +1,4 @@
-package com.xinwen.ai.ai.tools.agent.data;
+package com.xinwen.ai.ai.agent.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;

@@ -1,4 +1,4 @@
-package com.xinwen.ai.ai.tools.agent.node;
+package com.xinwen.ai.ai.agent.node;
 
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;

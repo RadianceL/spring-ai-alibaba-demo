@@ -1,4 +1,4 @@
-package com.xinwen.ai.ai.tools.client;
+package com.xinwen.ai.ai.tools.spring.tools;
 
 import com.alibaba.fastjson.JSON;
 import com.xinwen.ai.service.ProductService;
@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ProductAiTools {
+public class MessageToCustomerServiceTools {
 
     private final ProductService productService;
 
-    @Tool(description = """
-            当用户询问系统里有哪些商品、当前有哪些商品、全部商品、商品列表、我们拥有的商品时，必须调用此工具。
-                           禁止直接凭知识库或记忆回答商品列表。可传入用户输入的商品型号作为""")
-    public String findAllProduct(String userInputProductName) {
+    @Tool(name = "messageToCustomerService",description = """
+            查询不到该商品时，提示需要客服介入，该方法提供客服session，真正调用之前，需要客户确认
+            """)
+    public String messageToCustomerService(String userInputProductName) {
         log.info("查询当前我们拥有的商品");
         return JSON.toJSONString(productService.findAllProduct(userInputProductName));
     }

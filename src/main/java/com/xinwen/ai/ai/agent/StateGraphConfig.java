@@ -1,21 +1,19 @@
-package com.xinwen.ai.conifg.agent;
+package com.xinwen.ai.ai.agent;
 
-import com.alibaba.cloud.ai.graph.CompileConfig;
-import com.alibaba.cloud.ai.graph.CompiledGraph;
-import com.alibaba.cloud.ai.graph.StateGraph;
+import com.alibaba.cloud.ai.graph.*;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
 import com.alibaba.cloud.ai.graph.agent.hook.hip.HumanInTheLoopHook;
 import com.alibaba.cloud.ai.graph.agent.hook.hip.ToolConfig;
 import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
-import com.xinwen.ai.ai.tools.agent.AgentMessageToCustomerServiceTools;
-import com.xinwen.ai.ai.tools.agent.AgentProductAiTools;
-import com.xinwen.ai.ai.tools.agent.Config;
-import com.xinwen.ai.ai.tools.agent.data.MessageToCustomerServiceRequest;
-import com.xinwen.ai.ai.tools.agent.node.PreprocessorNode;
-import com.xinwen.ai.ai.tools.agent.node.ValidatorNode;
-import com.xinwen.ai.conifg.constant.ProductMatchChatSystemPrompt;
+import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
+import com.xinwen.ai.ai.agent.data.MessageToCustomerServiceRequest;
+import com.xinwen.ai.ai.agent.node.PreprocessorNode;
+import com.xinwen.ai.ai.agent.node.ValidatorNode;
+import com.xinwen.ai.ai.tools.alibaba.AgentMessageToCustomerServiceTools;
+import com.xinwen.ai.ai.tools.alibaba.AgentProductAiTools;
+import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -28,6 +26,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +45,18 @@ public class StateGraphConfig {
     private final AgentProductAiTools agentProductAiTools;
 
     private final AgentMessageToCustomerServiceTools agentMessageToCustomerServiceTools;
+
+    public static final String USER_INPUT = "INPUT";
+    public static final String ASSISTANT_RESULT = "RESULT";
+    public static final String ASSISTANT_VERIFY = "VERIFY";
+
+    private static final KeyStrategyFactory KEY_STRATEGY_FACTORY = () -> {
+        HashMap<String, KeyStrategy> strategies = new HashMap<>();
+        strategies.put(USER_INPUT, new ReplaceStrategy());
+        strategies.put(ASSISTANT_RESULT, new ReplaceStrategy());
+        strategies.put(ASSISTANT_VERIFY, new ReplaceStrategy());
+        return strategies;
+    };
 
     @Bean
     public MemorySaver memorySaver() {
@@ -68,7 +79,7 @@ public class StateGraphConfig {
         ToolCallback agentProductAiTool = FunctionToolCallback.builder("agentProductAiTool", agentProductAiTools)
                 .description("""
                         当用户询问系统里有哪些商品、当前有哪些商品、全部商品、商品列表、我们拥有的商品时，必须调用此工具。
-                        禁止直接凭知识库或记忆回答商品列表。可传入用户输入的商品型号作为""")
+                        禁止直接凭知识库或记忆回答商品列表。可传入用户输入的商品型号作为参数，如果没有找到，主动调用联系客服工具""")
                 .inputType(MessageToCustomerServiceRequest.class)
                 .build();
 
@@ -76,9 +87,11 @@ public class StateGraphConfig {
                 .name("product-match-agent")
                 .model(chatModel)
                 .systemPrompt(systemPrompt)
-                .instruction("{input}")
+                .instruction("""
+                                %s
+                            """.formatted(USER_INPUT))
                 .saver(memorySaver)
-                .outputKey("product_result")
+                .outputKey(ASSISTANT_RESULT)
                 .tools(List.of(agentMessageToCustomerServiceTool, agentProductAiTool))
                 .hooks(HumanInTheLoopHook.builder()
                         .approvalOn("agentMessageToCustomerServiceTools", ToolConfig.builder()
@@ -91,7 +104,7 @@ public class StateGraphConfig {
     @Bean
     public CompiledGraph stateGraph(ReactAgent reactAgent, MemorySaver memorySaver) throws GraphStateException {
         // 7. 构建工作流
-        StateGraph workflow = new StateGraph(Config.keyStrategyFactory);
+        StateGraph workflow = new StateGraph(KEY_STRATEGY_FACTORY);
 
         // 添加普通Node
         workflow.addNode("preprocess", node_async(new PreprocessorNode()));

@@ -3,7 +3,7 @@ package com.xinwen.ai.controller;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.xinwen.ai.conifg.constant.ChatConfig;
-import com.xinwen.ai.ai.ProductMatchAiChatService;
+import com.xinwen.ai.ai.service.ProductMatchAiChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,7 +30,7 @@ public class ProductMatchController {
         MediaType textUtf8 = new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8);
 
         AtomicReference<Disposable> subscriptionRef = new AtomicReference<>();
-        Disposable subscription = productMatchAiChatService.stream(timeId, message).subscribe(chunk -> {
+        Disposable subscription = productMatchAiChatService.streamStateGraph(timeId, message).subscribe(chunk -> {
             try {
                 emitter.send(SseEmitter.event().data(chunk, textUtf8));
             } catch (IOException e) {

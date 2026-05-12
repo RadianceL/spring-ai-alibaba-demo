@@ -1,4 +1,4 @@
-package com.xinwen.ai.conifg.rag;
+package com.xinwen.ai.ai.rag;
 
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -23,7 +23,7 @@ public class RagModularAdvisorConfig {
         return VectorStoreDocumentRetriever.builder()
             .vectorStore(vectorStore)
             .similarityThreshold(0.35)
-            .topK(5)
+            .topK(10)
             // .filterExpression(...) // 可选：元数据过滤
             .build();
     }

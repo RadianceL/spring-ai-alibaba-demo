@@ -1,4 +1,4 @@
-package com.xinwen.ai.conifg.memory;
+package com.xinwen.ai.ai.memory;
 
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;

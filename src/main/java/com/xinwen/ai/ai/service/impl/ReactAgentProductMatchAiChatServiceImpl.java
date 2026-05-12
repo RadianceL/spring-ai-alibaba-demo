@@ -1,29 +1,17 @@
-package com.xinwen.ai.ai.impl;
+package com.xinwen.ai.ai.service.impl;
 
 import com.alibaba.cloud.ai.graph.*;
 import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
-import com.alibaba.cloud.ai.graph.agent.ReactAgent;
-import com.alibaba.cloud.ai.graph.agent.hook.hip.HumanInTheLoopHook;
-import com.alibaba.cloud.ai.graph.agent.hook.hip.ToolConfig;
-import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
-import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
-import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
-import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
-import com.xinwen.ai.ai.ProductMatchAiChatService;
-import com.xinwen.ai.ai.tools.agent.AgentMessageToCustomerServiceTools;
-import com.xinwen.ai.ai.tools.agent.AgentProductAiTools;
-import com.xinwen.ai.ai.tools.agent.Config;
-import com.xinwen.ai.ai.tools.agent.data.MessageToCustomerServiceRequest;
-import com.xinwen.ai.ai.tools.agent.node.PreprocessorNode;
-import com.xinwen.ai.ai.tools.agent.node.ValidatorNode;
-import com.xinwen.ai.conifg.constant.ProductMatchChatSystemPrompt;
+import com.xinwen.ai.ai.service.ProductMatchAiChatService;
+import com.xinwen.ai.ai.tools.spring.tools.MessageToCustomerServiceTools;
+import com.xinwen.ai.ai.tools.spring.tools.ProductAiTools;
+import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -34,11 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import static com.alibaba.cloud.ai.graph.action.AsyncEdgeAction.edge_async;
-import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -46,8 +29,34 @@ public class ReactAgentProductMatchAiChatServiceImpl implements ProductMatchAiCh
 
     private final CompiledGraph compiledGraph;
 
+    @Value("classpath:prompt/product-master.st")
+    private Resource templateResource;
+
+    private final ChatClient chatClient;
+
+    private final MessageToCustomerServiceTools messageToCustomerServiceTools;
+
+    private final ProductAiTools productAiTools;
+
     @Override
     public Flux<String> stream(String timeId, String message) {
+        PromptTemplate template = new PromptTemplate(templateResource);
+        String systemPrompt = template.render(Map.of(
+                "baseRules", ProductMatchChatSystemPrompt.baseRules(),
+                "serverDate", LocalDate.now().toString())
+        );
+
+        return chatClient.prompt()
+                .system(systemPrompt)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, timeId))
+                .tools(messageToCustomerServiceTools, productAiTools)
+                .user(message)
+                .stream()
+                .content();
+    }
+
+    @Override
+    public Flux<String> streamStateGraph(String timeId, String message) {
         Map<String, Object> input = Map.of("input", message);
 
         // 第一次调用 - 可能触发中断
@@ -116,7 +125,7 @@ public class ReactAgentProductMatchAiChatServiceImpl implements ProductMatchAiCh
 //                })
 //                .filter(s -> !s.isBlank());
 
-// 流式执行，实时获取每个节点的输出
+        // 流式执行，实时获取每个节点的输出
         NodeOutput lastOutput = compiledGraph.stream(Map.of("input", message), resumableConfig)
                 .doOnNext(output -> {
                     if (output instanceof StreamingOutput<?> streamingOutput) {

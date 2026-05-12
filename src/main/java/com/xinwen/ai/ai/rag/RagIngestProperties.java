@@ -1,4 +1,4 @@
-package com.xinwen.ai.conifg.rag;
+package com.xinwen.ai.ai.rag;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

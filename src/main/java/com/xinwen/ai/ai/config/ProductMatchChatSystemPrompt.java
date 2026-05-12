@@ -1,4 +1,4 @@
-package com.xinwen.ai.conifg.constant;
+package com.xinwen.ai.ai.config;
 
 public final class ProductMatchChatSystemPrompt {
 
