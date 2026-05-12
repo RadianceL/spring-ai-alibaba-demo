@@ -21,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<VmsProductPO> findAllProduct(String userInputProductName) {
-        log.info("开始查询: "+ userInputProductName);
+        log.info("开始查询: " + userInputProductName);
         List<VmsProductPO> allProduct = productRepository.findAllProduct(userInputProductName);
         log.info("系统里的商品清单：{}", JSON.toJSONString(allProduct));
         return allProduct;

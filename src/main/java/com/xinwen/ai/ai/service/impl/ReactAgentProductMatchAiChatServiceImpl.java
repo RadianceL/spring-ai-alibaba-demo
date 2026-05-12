@@ -1,16 +1,16 @@
 package com.xinwen.ai.ai.service.impl;
 
-import com.alibaba.cloud.ai.graph.*;
-import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
+import com.alibaba.cloud.ai.graph.CompiledGraph;
+import com.alibaba.cloud.ai.graph.NodeOutput;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.xinwen.ai.ai.agent.StateGraphConfig;
+import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import com.xinwen.ai.ai.service.ProductMatchAiChatService;
 import com.xinwen.ai.ai.tools.spring.tools.MessageToCustomerServiceTools;
 import com.xinwen.ai.ai.tools.spring.tools.ProductAiTools;
-import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,24 +19,18 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReactAgentProductMatchAiChatServiceImpl implements ProductMatchAiChatService {
 
     private final CompiledGraph compiledGraph;
-
+    private final ChatClient chatClient;
+    private final MessageToCustomerServiceTools messageToCustomerServiceTools;
+    private final ProductAiTools productAiTools;
     @Value("classpath:prompt/product-master.st")
     private Resource templateResource;
-
-    private final ChatClient chatClient;
-
-    private final MessageToCustomerServiceTools messageToCustomerServiceTools;
-
-    private final ProductAiTools productAiTools;
 
     @Override
     public Flux<String> stream(String timeId, String message) {

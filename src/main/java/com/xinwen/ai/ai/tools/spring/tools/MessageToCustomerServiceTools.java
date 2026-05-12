@@ -15,7 +15,7 @@ public class MessageToCustomerServiceTools {
 
     private final ProductService productService;
 
-    @Tool(name = "messageToCustomerService",description = """
+    @Tool(name = "messageToCustomerService", description = """
             查询不到该商品时，提示需要客服介入，该方法提供客服session，真正调用之前，需要客户确认
             """)
     public String messageToCustomerService(String userInputProductName) {

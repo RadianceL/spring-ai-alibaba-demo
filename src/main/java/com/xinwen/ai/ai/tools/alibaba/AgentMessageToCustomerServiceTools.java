@@ -1,7 +1,6 @@
 package com.xinwen.ai.ai.tools.alibaba;
 
 import com.xinwen.ai.ai.agent.data.MessageToCustomerServiceRequest;
-import com.xinwen.ai.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;

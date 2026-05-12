@@ -16,17 +16,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatClientConfig {
 
+    private final MessageToCustomerServiceTools messageToCustomerServiceTools;
+    private final ProductAiTools productAiTools;
+    private final Advisor retrievalAugmentationAdvisor;
+    private final MessageChatMemoryAdvisor messageChatMemoryAdvisor;
     @Value("classpath:prompt/product-master.st")
     private Resource templateResource;
-
-    private final MessageToCustomerServiceTools messageToCustomerServiceTools;
-
-    private final ProductAiTools productAiTools;
-
-    private final Advisor retrievalAugmentationAdvisor;
-
-    private final MessageChatMemoryAdvisor messageChatMemoryAdvisor;
-
 
     @Bean
     public ChatClient buildChatClient(ChatClient.Builder chatClientBuilder) {

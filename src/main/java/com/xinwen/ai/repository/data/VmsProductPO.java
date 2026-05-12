@@ -78,7 +78,6 @@ public class VmsProductPO {
     private String brandDisp;
 
 
-
     /**
      * 是否是在库品 0不是 1是
      */

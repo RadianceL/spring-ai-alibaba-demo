@@ -37,12 +37,10 @@ import java.util.Properties;
 @Component
 public class RagIngestService {
 
-    private static final Logger log = LoggerFactory.getLogger(RagIngestService.class);
-
     static final String META_SOURCE = "source";
     static final String META_DOC_KEY = "doc_key";
     static final String META_CONTENT_HASH = "content_hash";
-
+    private static final Logger log = LoggerFactory.getLogger(RagIngestService.class);
     private final VectorStore vectorStore;
     private final RagIngestProperties ingestProperties;
 
@@ -52,6 +50,22 @@ public class RagIngestService {
     public RagIngestService(VectorStore vectorStore, RagIngestProperties ingestProperties) {
         this.vectorStore = vectorStore;
         this.ingestProperties = ingestProperties;
+    }
+
+    private static String sha256Hex(String text) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(text.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static String readResourceAsUtf8(Resource resource) throws IOException {
+        try (var in = resource.getInputStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     @PostConstruct
@@ -146,21 +160,5 @@ public class RagIngestService {
             return Path.of(ingestProperties.getStatePath());
         }
         return Path.of(System.getProperty("java.io.tmpdir"), "sunnyside-rag", "ingest-state.properties");
-    }
-
-    private static String sha256Hex(String text) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(text.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static String readResourceAsUtf8(Resource resource) throws IOException {
-        try (var in = resource.getInputStream()) {
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        }
     }
 }

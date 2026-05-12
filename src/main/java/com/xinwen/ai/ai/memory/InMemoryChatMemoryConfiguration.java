@@ -16,8 +16,8 @@ public class InMemoryChatMemoryConfiguration {
     @Bean
     @ConditionalOnMissingBean(ChatMemory.class)
     public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository,
-            InMemoryChatMemoryProperties properties) {
-                
+                                 InMemoryChatMemoryProperties properties) {
+
         return MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(properties.getMaxMessages())

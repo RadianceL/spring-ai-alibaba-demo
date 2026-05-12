@@ -21,11 +21,11 @@ public class RagModularAdvisorConfig {
     @Bean
     public VectorStoreDocumentRetriever vectorStoreDocumentRetriever(VectorStore vectorStore) {
         return VectorStoreDocumentRetriever.builder()
-            .vectorStore(vectorStore)
-            .similarityThreshold(0.35)
-            .topK(10)
-            // .filterExpression(...) // 可选：元数据过滤
-            .build();
+                .vectorStore(vectorStore)
+                .similarityThreshold(0.35)
+                .topK(10)
+                // .filterExpression(...) // 可选：元数据过滤
+                .build();
     }
 
     //将检索增强顾问注入到Spring容器中
@@ -35,10 +35,10 @@ public class RagModularAdvisorConfig {
             // , ChatClient.Builder rewriteChatClientBuilder // 若启用 RewriteQueryTransformer
     ) {
         var builder = RetrievalAugmentationAdvisor.builder()
-            .documentRetriever(vectorStoreDocumentRetriever)
-            .queryAugmenter(ContextualQueryAugmenter.builder()
-                .allowEmptyContext(true)//允许空上下文
-                .build());
+                .documentRetriever(vectorStoreDocumentRetriever)
+                .queryAugmenter(ContextualQueryAugmenter.builder()
+                        .allowEmptyContext(true)//允许空上下文
+                        .build());
         return builder.build();
     }
 

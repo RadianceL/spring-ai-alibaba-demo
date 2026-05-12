@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 @Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AgentProductAiTools  implements BiFunction<MessageToCustomerServiceRequest, ToolContext, String> {
+public class AgentProductAiTools implements BiFunction<MessageToCustomerServiceRequest, ToolContext, String> {
 
     private final ProductService productService;
 

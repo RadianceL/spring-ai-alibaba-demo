@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xinwen.ai.repository.ProductRepository">
-
     <resultMap id="BaseResultMap" type="com.xinwen.ai.repository.data.VmsProductPO">
         <result column="product_id" property="productId"/>
         <result column="company_id" property="companyId"/>
@@ -41,7 +40,8 @@
     </resultMap>
 
     <select id="findAllProduct" resultMap="BaseResultMap">
-        SELECT * FROM vms_product
+        SELECT *
+        FROM vms_product
 
         LIMIT 10
     </select>

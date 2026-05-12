@@ -11,9 +11,9 @@ import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 import com.xinwen.ai.ai.agent.data.MessageToCustomerServiceRequest;
 import com.xinwen.ai.ai.agent.node.PreprocessorNode;
 import com.xinwen.ai.ai.agent.node.ValidatorNode;
+import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import com.xinwen.ai.ai.tools.alibaba.AgentMessageToCustomerServiceTools;
 import com.xinwen.ai.ai.tools.alibaba.AgentProductAiTools;
-import com.xinwen.ai.ai.config.ProductMatchChatSystemPrompt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -30,26 +30,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.alibaba.cloud.ai.graph.action.AsyncEdgeAction.edge_async;
 import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StateGraphConfig {
 
-    @Value("classpath:prompt/product-master.st")
-    private Resource templateResource;
-
-    private final ChatModel chatModel;
-
-    private final AgentProductAiTools agentProductAiTools;
-
-    private final AgentMessageToCustomerServiceTools agentMessageToCustomerServiceTools;
-
     public static final String USER_INPUT = "INPUT";
     public static final String ASSISTANT_RESULT = "RESULT";
     public static final String ASSISTANT_VERIFY = "VERIFY";
-
     private static final KeyStrategyFactory KEY_STRATEGY_FACTORY = () -> {
         HashMap<String, KeyStrategy> strategies = new HashMap<>();
         strategies.put(USER_INPUT, new ReplaceStrategy());
@@ -57,6 +46,11 @@ public class StateGraphConfig {
         strategies.put(ASSISTANT_VERIFY, new ReplaceStrategy());
         return strategies;
     };
+    private final ChatModel chatModel;
+    private final AgentProductAiTools agentProductAiTools;
+    private final AgentMessageToCustomerServiceTools agentMessageToCustomerServiceTools;
+    @Value("classpath:prompt/product-master.st")
+    private Resource templateResource;
 
     @Bean
     public MemorySaver memorySaver() {
@@ -64,7 +58,7 @@ public class StateGraphConfig {
     }
 
     @Bean("reactAgent")
-    public ReactAgent reactAgentBuilder(MemorySaver memorySaver){
+    public ReactAgent reactAgentBuilder(MemorySaver memorySaver) {
         PromptTemplate template = new PromptTemplate(templateResource);
         String systemPrompt = template.render(Map.of(
                 "baseRules", ProductMatchChatSystemPrompt.baseRules(),
@@ -88,8 +82,8 @@ public class StateGraphConfig {
                 .model(chatModel)
                 .systemPrompt(systemPrompt)
                 .instruction("""
-                                {%s}
-                            """.formatted(USER_INPUT))
+                            {%s}
+                        """.formatted(USER_INPUT))
                 .saver(memorySaver)
                 .outputKey(ASSISTANT_RESULT)
                 .tools(List.of(agentMessageToCustomerServiceTool, agentProductAiTool))
